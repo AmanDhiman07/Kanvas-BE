@@ -3,10 +3,14 @@ import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import authRoutes from "./src/auth/routes/auth.routes";
+import listRoutes from "./src/list/routes/list.routes";
 
 dotenv.config();
 
-connectDB();        
+// Connect to database (async, but we don't await to allow server to start)
+connectDB().catch((error) => {
+    console.error("Failed to connect to database:", error);
+});
 
 const app = express();
 
@@ -27,6 +31,9 @@ app.get("/", (req, res) => {
 
 // Auth routes
 app.use("/auth", authRoutes);
+
+// List routes
+app.use("/list", listRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
