@@ -22,8 +22,14 @@ export const loginUser = async (credentials: LoginCredentials): Promise<AuthResu
     try {
         const { username, password } = credentials;
 
+        console.log("=== Login Attempt ===");
+        console.log("Username/Email:", username);
+        console.log("Password provided:", password ? "Yes" : "No");
+
         // First check demo credentials file
         const demoUser = findDemoUser(username);
+        console.log("Demo user lookup result:", demoUser ? `Found: ${demoUser.username}` : "Not found");
+        
         if (demoUser) {
             // Check password for demo user (plain text comparison)
             if (demoUser.password === password) {

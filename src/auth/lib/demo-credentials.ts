@@ -11,6 +11,10 @@ export const DEMO_USERS: DemoUser[] = [
         username: "user@123",
         password: "12345",
     },
+    {
+        username: "user@you.com",
+        password: "12345",
+    },
 ];
 
 export const findDemoUser = (username: string): DemoUser | undefined => {

@@ -22,15 +22,18 @@ export const login = async (req: Request, res: Response): Promise<void> => {
             return;
         }
 
-        // Accept both username and email fields
-        const username = req.body.username || req.body.email;
+        // Extract email (validation ensures it exists)
+        const email = req.body.email;
         const password = req.body.password;
+        
+        // Use email as username for authentication
+        const username = email;
 
         console.log("Extracted username:", username);
         console.log("Extracted password:", password ? "***" : "missing");
 
-        // Additional check if username or password are missing
-        if (!username || !password) {
+        // Additional check if email or password are missing (validation should have caught this)
+        if (!email || !password) {
             res.status(400).json({
                 status: false,
                 message: "Email and password must not be empty",
@@ -46,7 +49,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         if (!result.success) {
             res.status(401).json({
                 status: false,
-                message: result.message,
+                message: result.message || "Invalid email or password",
                 statusCode: 401,
                 data: {},
             });

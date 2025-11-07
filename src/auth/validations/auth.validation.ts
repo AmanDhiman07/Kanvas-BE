@@ -1,15 +1,15 @@
 import { body, ValidationChain } from "express-validator";
 
 export const loginValidation: ValidationChain[] = [
-    // Check username (required)
-    body("username")
+    // Check email (required)
+    body("email")
         .trim()
         .notEmpty()
-        .withMessage("Username is required")
+        .withMessage("Email is required")
         .isString()
-        .withMessage("Username must be a string")
+        .withMessage("Email must be a string")
         .isLength({ min: 3, max: 50 })
-        .withMessage("Username must be between 3 and 50 characters"),
+        .withMessage("Email must be between 3 and 50 characters"),
     
     // Check password (required)
     body("password")

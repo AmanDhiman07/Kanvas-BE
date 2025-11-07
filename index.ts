@@ -1,6 +1,7 @@
 import { connectDB } from "./src/db/db";
 import dotenv from "dotenv";
 import express from "express";
+import cors from "cors";
 import authRoutes from "./src/auth/routes/auth.routes";
 
 dotenv.config();
@@ -8,6 +9,12 @@ dotenv.config();
 connectDB();        
 
 const app = express();
+
+// CORS middleware - allow frontend on port 5173
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+}));
 
 // Middleware
 app.use(express.json());
