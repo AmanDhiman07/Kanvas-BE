@@ -45,3 +45,38 @@ export const createTitle = async (data: CreateTitleData): Promise<TitleResult> =
     }
 };
 
+export interface GetAllTitlesResult {
+    success: boolean;
+    message: string;
+    data?: {
+        id: string;
+        title: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }[];
+}
+
+export const getAllTitles = async (): Promise<GetAllTitlesResult> => {
+    try {
+        // Get all titles from database, sorted by newest first
+        const titles = await List.find().sort({ createdAt: -1 });
+
+        return {
+            success: true,
+            message: "Titles retrieved successfully",
+            data: titles.map((title) => ({
+                id: title.id,
+                title: title.title,
+                createdAt: title.createdAt,
+                updatedAt: title.updatedAt,
+            })),
+        };
+    } catch (error) {
+        console.error("Get all titles error:", error);
+        return {
+            success: false,
+            message: "An error occurred while retrieving titles",
+        };
+    }
+};
+

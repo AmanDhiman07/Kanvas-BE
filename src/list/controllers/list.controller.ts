@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { validationResult } from "express-validator";
-import { createTitle } from "../services/list.service";
+import { createTitle, getAllTitles } from "../services/list.service";
 
 export const createTitleController = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -43,6 +43,39 @@ export const createTitleController = async (req: Request, res: Response): Promis
         });
     } catch (error) {
         console.error("Create title controller error:", error);
+        res.status(500).json({
+            status: false,
+            message: "Internal server error",
+            statusCode: 500,
+            data: {},
+        });
+    }
+};
+
+export const getAllTitlesController = async (req: Request, res: Response): Promise<void> => {
+    try {
+        // Get all titles from database
+        const result = await getAllTitles();
+
+        if (!result.success) {
+            res.status(500).json({
+                status: false,
+                message: result.message,
+                statusCode: 500,
+                data: {},
+            });
+            return;
+        }
+
+        // Success response
+        res.status(200).json({
+            status: true,
+            message: result.message,
+            statusCode: 200,
+            data: result.data || [],
+        });
+    } catch (error) {
+        console.error("Get all titles controller error:", error);
         res.status(500).json({
             status: false,
             message: "Internal server error",
