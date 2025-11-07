@@ -1,0 +1,29 @@
+# Ignore node_modules directory
+node_modules/
+ 
+# Ignore logs
+logs/
+
+# Ignore environment variables file
+.env
+
+# Ignore built files
+dist/
+
+# Ignore any editor-specific files
+.vscode/
+.idea/
+
+# Ignore any OS-specific files
+.DS_Store
+Thumbs.db
+
+#prodcut spec MD
+Product Spec f754387d3fa642f299e7a45ea8d84bf7 2.md
+
+# code credentials
+src/config/credentials.ts
+
+
+uploads/
+scripts/uploadCase/~$readData.xlsx
