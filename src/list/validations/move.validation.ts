@@ -16,6 +16,10 @@ export const moveCardValidation = [
         .withMessage("Destination list ID is required")
         .isMongoId()
         .withMessage("Invalid destination list ID format"),
+    body("newPosition")
+        .optional()
+        .isInt({ min: 0 })
+        .withMessage("New position must be a non-negative integer"),
 ];
 
 export const moveListValidation = [

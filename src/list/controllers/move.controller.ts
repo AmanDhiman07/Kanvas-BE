@@ -17,24 +17,13 @@ export const moveCardController = async (req: Request, res: Response): Promise<v
             return;
         }
 
-        const { cardId, fromListId, toListId } = req.body;
+        const { cardId, fromListId, toListId, newPosition } = req.body;
 
-        // Prevent moving to the same list
-        if (fromListId === toListId) {
-            res.status(400).json({
-                status: false,
-                message: "Source and destination lists cannot be the same",
-                statusCode: 400,
-                data: {},
-            });
-            return;
-        }
-
-        // Move card to new list
-        const result = await moveCardService({ cardId, fromListId, toListId });
+        // Move card (or reorder if fromListId === toListId)
+        const result = await moveCardService({ cardId, fromListId, toListId, newPosition });
 
         if (!result.success) {
-            const statusCode = result.message === "Card not found" ? 404 : 400;
+            const statusCode = result.message.includes("not found") ? 404 : 400;
             res.status(statusCode).json({
                 status: false,
                 message: result.message,

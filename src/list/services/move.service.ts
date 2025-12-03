@@ -5,6 +5,7 @@ interface MoveCardParams {
     cardId: string;
     fromListId: string;
     toListId: string;
+    newPosition?: number;
 }
 
 interface MoveListParams {
@@ -18,37 +19,70 @@ interface ServiceResponse {
     data?: any;
 }
 
-export const moveCardService = async ({ cardId, fromListId, toListId }: MoveCardParams): Promise<ServiceResponse> => {
+export const moveCardService = async ({ cardId, fromListId, toListId, newPosition }: MoveCardParams): Promise<ServiceResponse> => {
     try {
-        // 1. Find the card by ID
-        const card = await Card.findById(cardId);
+        // 1. Find the source list
+        const fromList = await List.findById(fromListId);
+        if (!fromList) {
+            return { success: false, message: "Source list not found" };
+        }
 
-        if (!card) {
+        // 2. Find the card in the source list
+        // Note: We use 'any' cast because Mongoose types for subdocuments can be tricky
+        const cardIndex = fromList.cards.findIndex((c: any) => c._id.toString() === cardId);
+
+        if (cardIndex === -1) {
+            return { success: false, message: "Card not found in source list" };
+        }
+
+        const cardToMove = fromList.cards[cardIndex];
+
+        // 3. Handle Same List Movement (Reordering)
+        if (fromListId === toListId) {
+            // Remove from old position
+            fromList.cards.splice(cardIndex, 1);
+
+            // Insert at new position
+            // Default to end if newPosition is undefined
+            const targetPos = newPosition !== undefined ? newPosition : fromList.cards.length;
+            const safePos = Math.max(0, Math.min(targetPos, fromList.cards.length));
+
+            fromList.cards.splice(safePos, 0, cardToMove);
+
+            await fromList.save();
+
             return {
-                success: false,
-                message: "Card not found",
+                success: true,
+                message: "Card reordered successfully",
+                data: { card: cardToMove, fromListId, toListId, newPosition: safePos }
             };
         }
 
-        // 2. Verify the card belongs to the source list
-        if (card.titleId.toString() !== fromListId) {
-            return {
-                success: false,
-                message: "Card does not belong to the source list",
-            };
+        // 4. Handle Different List Movement
+        const toList = await List.findById(toListId);
+        if (!toList) {
+            return { success: false, message: "Destination list not found" };
         }
 
-        // 3. Update the card's titleId to the destination list
-        card.titleId = toListId as any;
-        await card.save();
+        // Remove from source list
+        fromList.cards.splice(cardIndex, 1);
+        await fromList.save();
+
+        // Insert into destination list
+        const targetPos = newPosition !== undefined ? newPosition : toList.cards.length;
+        const safePos = Math.max(0, Math.min(targetPos, toList.cards.length));
+
+        toList.cards.splice(safePos, 0, cardToMove);
+        await toList.save();
 
         return {
             success: true,
             message: "Card moved successfully",
             data: {
-                card,
+                card: cardToMove,
                 fromListId,
                 toListId,
+                newPosition: safePos,
             },
         };
     } catch (error) {
