@@ -19,9 +19,14 @@ export const createTitle = async (data: CreateTitleData): Promise<TitleResult> =
     try {
         const { title } = data;
 
-        // Create new list item with title
+        // Get the highest position and increment
+        const maxPositionList = await List.findOne().sort({ position: -1 }).limit(1);
+        const nextPosition = maxPositionList ? (maxPositionList.position || 0) + 1 : 0;
+
+        // Create new list item with title and position
         const newList = new List({
             title: title.trim(),
+            position: nextPosition,
         });
 
         const savedList = await newList.save();
@@ -51,6 +56,11 @@ export interface GetAllTitlesResult {
     data?: {
         id: string;
         title: string;
+        position: number;
+        cards: {
+            card: string;
+            createdAt: Date;
+        }[];
         createdAt: Date;
         updatedAt: Date;
     }[];
@@ -58,8 +68,8 @@ export interface GetAllTitlesResult {
 
 export const getAllTitles = async (): Promise<GetAllTitlesResult> => {
     try {
-        // Get all titles from database, sorted by newest first
-        const titles = await List.find().sort({ createdAt: -1 });
+        // Get all titles from database, sorted by position
+        const titles = await List.find().sort({ position: 1 });
 
         return {
             success: true,
@@ -67,6 +77,8 @@ export const getAllTitles = async (): Promise<GetAllTitlesResult> => {
             data: titles.map((title) => ({
                 id: title.id,
                 title: title.title,
+                position: title.position || 0,
+                cards: title.cards || [],
                 createdAt: title.createdAt,
                 updatedAt: title.updatedAt,
             })),

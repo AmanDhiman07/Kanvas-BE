@@ -3,7 +3,7 @@ import { DB_NAME } from "../../ecosystem.config";
 
 export const connectDB = async () => {
     try {
-        const mongoUrl = process.env.MONGODB_URI;
+        const mongoUrl = process.env.MONGO_URI;
         if (!mongoUrl) {
             console.error("MONGODB_URI is not defined in environment variables");
             process.exit(1);
